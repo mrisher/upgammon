@@ -436,11 +436,17 @@ function SimpleBoardUI(client) {
 
         // push up last piece if height override is set
         if (i === itemCount - 1) {
-          const height = $(this).data('height');
-          if (height) {
-            marginPercent = ratio * (i + height);
+          const pieceId = parseInt($(this).text());
+          if (self.match.currentGame.state.heightBoosts && Number.isInteger(pieceId)) {
+            const height = self.match.currentGame.state.heightBoosts[pieceId];
+            if (height) {
+              marginPercent = ratio * Math.min(6, i + height);
+              $(this).css("z-index", 999);
+            }
           }
-          // $(this).removeData('height');
+          else {
+            $(this).css("z-index", "auto");
+          }
         }
         $(this).css(alignment, "0");
         $(this).css("margin-" + alignment, self.toFixedDown(marginPercent, 2) + "%");
@@ -457,6 +463,7 @@ function SimpleBoardUI(client) {
    */
   this.compactPosition = function (pos) {
     var pointElement = this.getPointElem(pos);
+
     var alignment;
 
     if (this.client.player.currentPieceType === model.PieceType.BLACK) {
@@ -853,7 +860,7 @@ function SimpleBoardUI(client) {
 
     var pieceElem = this.getPieceElem(action.piece);
     var srcPointElem = pieceElem.parent();
-    pieceElem.data('height', action.to);
+    pieceElem.data('boostedHeight', action.to);
 
     this.compactPosition(srcPointElem.data('position'));
   };
