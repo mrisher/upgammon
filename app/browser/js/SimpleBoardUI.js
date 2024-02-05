@@ -441,19 +441,27 @@ function SimpleBoardUI(client) {
         if (i === itemCount - 1) {
           const pieceId = $(this).data('piece').id;
           if (self.match.currentGame.state.boostedHeight && pieceId) {
-            var height = self.match.currentGame.state.boostedHeight[pieceId];
-            if (height) {
-              height = Math.min(height, 6);
-              const overflow = (itemHeight * height) - elementHeight;
+            var boostedChipRank = self.match.currentGame.state.boostedHeight[pieceId];
+            if (boostedChipRank) {
+              if (self.displayPieceId === false){
+                $(this).children().first().text("(" + boostedChipRank + ")");
+              }
+              boostedChipRank = Math.min(boostedChipRank, 6);
+              // overflow is number of pixels we exceed the point
+              const overflow = (itemHeight * boostedChipRank) - elementHeight;
               if (overflow > 0) {
                 // if we're above the height that would have overflowed, scale approp.
-                ratio = 100 - (((overflow / (itemCount - 1)) / itemHeight) * 100);
+                ratio = 100 - (((overflow / (boostedChipRank - 1)) / itemHeight) * 100);
               }
-              marginPercent = ratio * height;
-              $(this).css("z-index", 999);
+              marginPercent = ratio * boostedChipRank;
+              // place on top of dice panel
+              $(this).css("z-index", 1001);
             }
             else {
               $(this).css("z-index", "auto");
+              if (self.displayPieceId === false){
+                $(this).children().first().text("");
+              }
             }
           }
         }
@@ -637,6 +645,7 @@ function SimpleBoardUI(client) {
     }
 
     console.log('Board UI updated');
+    this.compactAllPositions();
     console.log('Match:', this.match);
     console.log('Game:', game);
     console.log('Player:', this.client.player);
