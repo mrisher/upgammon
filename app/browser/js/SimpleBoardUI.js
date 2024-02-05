@@ -217,6 +217,9 @@ function SimpleBoardUI(client) {
 
     $('#btn-confirm').unbind('click');
     $('#btn-confirm').click(function (e) {
+      console.log("Compacting positions at end of move")
+      self.match.currentGame.state.heightBoosts = [];
+      self.compactAllPositions();
       self.client.reqConfirmMoves();
     });
 
@@ -436,16 +439,16 @@ function SimpleBoardUI(client) {
 
         // push up last piece if height override is set
         if (i === itemCount - 1) {
-          const pieceId = parseInt($(this).text());
-          if (self.match.currentGame.state.heightBoosts && Number.isInteger(pieceId)) {
+          const pieceId = $(this).data('piece').id;
+          if (self.match.currentGame.state.heightBoosts && pieceId) {
             const height = self.match.currentGame.state.heightBoosts[pieceId];
             if (height) {
               marginPercent = ratio * Math.min(6, i + height);
               $(this).css("z-index", 999);
             }
-          }
-          else {
-            $(this).css("z-index", "auto");
+            else {
+              $(this).css("z-index", "auto");
+            }
           }
         }
         $(this).css(alignment, "0");
