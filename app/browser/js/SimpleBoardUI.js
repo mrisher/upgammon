@@ -33,7 +33,7 @@ function SimpleBoardUI(client) {
     this.container = $('#' + this.client.config.containerID);
     this.container.append($('#tmpl-board').html());
     this.container.append($('<div id="ohsnap"></div>'));
-    this.displayPieceId = true;
+    this.displayPieceId = false;
 
     this.board = $('#board');
     this.fields = [];
