@@ -143,6 +143,7 @@ function SimpleBoardUI(client) {
   this.handlePointClick = function (e) {
     var self = e.data;
     var game = self.match.currentGame;
+    $('bpdy').css('cursor', 'wait');
 
     console.log('mousedown click', game);
     if (!model.Game.hasMoreMoves(game)) {
@@ -169,6 +170,7 @@ function SimpleBoardUI(client) {
         self.client.reqMove(piece, steps);
       }
     }
+    $('bpdy').css('cursor', 'auto');
     e.preventDefault();
   };
 
