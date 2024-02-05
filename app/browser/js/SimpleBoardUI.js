@@ -218,7 +218,7 @@ function SimpleBoardUI(client) {
     $('#btn-confirm').unbind('click');
     $('#btn-confirm').click(function (e) {
       console.log("Compacting positions at end of move")
-      self.match.currentGame.state.heightBoosts = [];
+      self.match.currentGame.state.boostedHeight = [];
       self.compactAllPositions();
       self.client.reqConfirmMoves();
     });
@@ -440,10 +440,16 @@ function SimpleBoardUI(client) {
         // push up last piece if height override is set
         if (i === itemCount - 1) {
           const pieceId = $(this).data('piece').id;
-          if (self.match.currentGame.state.heightBoosts && pieceId) {
-            const height = self.match.currentGame.state.heightBoosts[pieceId];
+          if (self.match.currentGame.state.boostedHeight && pieceId) {
+            var height = self.match.currentGame.state.boostedHeight[pieceId];
             if (height) {
-              marginPercent = ratio * Math.min(6, i + height);
+              height = Math.min(height, 6);
+              const overflow = (itemHeight * height) - elementHeight;
+              if (overflow > 0) {
+                // if we're above the height that would have overflowed, scale approp.
+                ratio = 100 - (((overflow / (itemCount - 1)) / itemHeight) * 100);
+              }
+              marginPercent = ratio * height;
               $(this).css("z-index", 999);
             }
             else {
