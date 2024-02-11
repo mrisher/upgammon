@@ -17,5 +17,8 @@
   },
   "devDependencies": {
     "jshint": "^2.9.4"
+  },
+  "dependencies": {
+    "browserify": "^17.0.0"
   }
 }

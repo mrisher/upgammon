@@ -811,7 +811,7 @@ function Server() {
    *                      successfully and a reply should be sent.
    */
   this.handleMovePiece = function (socket, params, reply) {
-    console.log('Moving a piece', params);
+    console.log('Moving a piece', params.piece, params);
 
     var match = this.getSocketMatch(socket);
     var player = this.getSocketPlayer(socket);
@@ -842,7 +842,7 @@ function Server() {
 
     var actionList = rule.getMoveActions(match.currentGame.state, params.piece, params.steps);
     if (actionList.length === 0) {
-      reply.errorMessage = 'Requested move is not allowed!';
+      reply.errorMessage = 'Requested MOVE move is not allowed!';
       return false;
     }
 
@@ -928,7 +928,7 @@ this.handleUpPiece = function (socket, params, reply) {
 
   var actionList = rule.getMoveActions(match.currentGame.state, params.piece, params.height, model.MoveActionType.UP);
   if (actionList.length === 0) {
-    reply.errorMessage = 'Requested move is not allowed!';
+    reply.errorMessage = 'Requested UP move is not allowed!';
     return false;
   }
 

@@ -33,7 +33,7 @@ function SimpleBoardUI(client) {
     this.container = $('#' + this.client.config.containerID);
     this.container.append($('#tmpl-board').html());
     this.container.append($('<div id="ohsnap"></div>'));
-    this.displayPieceId = true;
+    this.displayPieceId = false;
 
     this.board = $('#board');
     this.fields = [];
@@ -143,6 +143,7 @@ function SimpleBoardUI(client) {
   this.handlePointClick = function (e) {
     var self = e.data;
     var game = self.match.currentGame;
+    $('bpdy').css('cursor', 'wait');
 
     console.log('mousedown click', game);
     if (!model.Game.hasMoreMoves(game)) {
@@ -169,6 +170,7 @@ function SimpleBoardUI(client) {
         self.client.reqMove(piece, steps);
       }
     }
+    $('bpdy').css('cursor', 'auto');
     e.preventDefault();
   };
 
@@ -217,6 +219,9 @@ function SimpleBoardUI(client) {
 
     $('#btn-confirm').unbind('click');
     $('#btn-confirm').click(function (e) {
+      console.log("Compacting positions at end of move")
+      self.match.currentGame.state.boostedHeight = [];
+      self.compactAllPositions();
       self.client.reqConfirmMoves();
     });
 
@@ -436,11 +441,31 @@ function SimpleBoardUI(client) {
 
         // push up last piece if height override is set
         if (i === itemCount - 1) {
-          const height = $(this).data('height');
-          if (height) {
-            marginPercent = ratio * (i + height);
+          const pieceId = $(this).data('piece').id;
+          if (self.match.currentGame.state.boostedHeight && pieceId) {
+            var boostedChipRank = self.match.currentGame.state.boostedHeight[pieceId];
+            if (boostedChipRank) {
+              if (self.displayPieceId === false){
+                $(this).children().first().text("(" + boostedChipRank + ")");
+              }
+              boostedChipRank = Math.min(boostedChipRank, 6);
+              // overflow is number of pixels we exceed the point
+              const overflow = (itemHeight * boostedChipRank) - elementHeight;
+              if (overflow > 0) {
+                // if we're above the height that would have overflowed, scale approp.
+                ratio = 100 - (((overflow / (boostedChipRank - 1)) / itemHeight) * 100);
+              }
+              marginPercent = ratio * boostedChipRank;
+              // place on top of dice panel
+              $(this).css("z-index", 1001);
+            }
+            else {
+              $(this).css("z-index", "auto");
+              if (self.displayPieceId === false){
+                $(this).children().first().text("");
+              }
+            }
           }
-          // $(this).removeData('height');
         }
         $(this).css(alignment, "0");
         $(this).css("margin-" + alignment, self.toFixedDown(marginPercent, 2) + "%");
@@ -457,6 +482,7 @@ function SimpleBoardUI(client) {
    */
   this.compactPosition = function (pos) {
     var pointElement = this.getPointElem(pos);
+
     var alignment;
 
     if (this.client.player.currentPieceType === model.PieceType.BLACK) {
@@ -621,6 +647,7 @@ function SimpleBoardUI(client) {
     }
 
     console.log('Board UI updated');
+    this.compactAllPositions();
     console.log('Match:', this.match);
     console.log('Game:', game);
     console.log('Player:', this.client.player);
@@ -853,7 +880,7 @@ function SimpleBoardUI(client) {
 
     var pieceElem = this.getPieceElem(action.piece);
     var srcPointElem = pieceElem.parent();
-    pieceElem.data('height', action.to);
+    pieceElem.data('boostedHeight', action.to);
 
     this.compactPosition(srcPointElem.data('position'));
   };
